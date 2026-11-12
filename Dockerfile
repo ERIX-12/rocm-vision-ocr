@@ -1,5 +1,10 @@
-FROM rocm/pytorch:rocm6.2_ubuntu22.04_py3.10_pytorch_release_2.3.0
+FROM rocm/pytorch:rocm10.0_ubuntu26.04_py3.14_pytorch_release_2.13.0
 WORKDIR /app
-RUN pip install --no-cache-dir pillow torchvision transformers accelerate && mkdir -p /app/output
+ENV PYTHONUNBUFFERED=1
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --no-deps -r /app/requirements.txt && \
+    python3 -c "import torch; print(torch.__version__)" && \
+    mkdir -p /app/output /app/input /models
 COPY . /app
-CMD ["python3", "/app/app.py", "--help"]
+RUN chmod +x /app/app.py
+CMD ["tail", "-f", "/dev/null"]
